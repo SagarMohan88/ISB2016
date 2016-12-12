@@ -1,0 +1,188 @@
+---
+title: 'HW: Handling Corporate Data'
+author: "Sanjiv Das"
+date: "12/6/2016"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+## Get All Firms Data
+
+1. Download the table of firms listed on the NYSE, NASDAQ, and AMEX using the *quantmod* package.
+2. What is the dimension of your data (rows, columns)?
+
+```{r,echo=FALSE,eval=FALSE}
+library(quantmod)
+nasdaq_names = stockSymbols(exchange = "NASDAQ")
+nyse_names = stockSymbols(exchange = "NYSE")
+amex_names = stockSymbols(exchange = "AMEX")
+tickers = rbind(nasdaq_names,nyse_names,amex_names)
+tickers$Count = 1
+print(dim(tickers))
+```
+
+## Clean Data
+
+1. Remove all rows with incomplete data.
+2. How many rows of observations do you now have?
+
+```{r,echo=FALSE,eval=FALSE}
+idx = complete.cases(tickers)
+df = tickers[idx,]
+print(nrow(df))
+```
+
+## IPO Activity
+
+1. Create a table of the frequency of IPOs by year to see hot and cold IPO markets. (First, remove all rows with missing IPO data.)
+2. Plot IPO Activity with a bar plot. Make sure to label the axes properly. 
+3. Plot IPO Activity using the **rbokeh** package to make a pretty line plot. See: https://hafen.github.io/rbokeh/
+
+```{r,echo=FALSE,eval=FALSE}
+library(dplyr)
+library(magrittr)
+
+idx = which(!is.na(tickers$IPOyear))
+df = tickers[idx,]
+res = df %>% group_by(IPOyear) %>% summarise(numIPO = sum(Count))
+print(res)
+barplot(res$numIPO,names.arg = res$IPOyear)
+```
+
+
+```{r,echo=FALSE,eval=FALSE}
+library(rbokeh)
+p = figure(width=500,height=300) %>% ly_points(IPOyear,numIPO,data=res,hover=c(IPOyear,numIPO)) %>% ly_lines(IPOyear,numIPO,data=res)
+p 
+```
+
+## Industry Sectors
+
+1. How many sectors are there? 
+2. Summarize the frequency of firms by sector. 
+
+```{r,echo=FALSE,eval=FALSE}
+print(length(unique(tickers$Sector)))
+res = tickers %>% group_by(Sector) %>% summarize(numInd = sum(Count))
+print(res)
+```
+
+## Finance Sector
+
+1. Subset the original data to include only finance firms. (Do not exclude rows of missing values.)
+2. Sort the firms by market capitalization and print the top 50 finance firms. (Be careful, some of the values are in millions and others in billions.)
+
+```{r,echo=FALSE,eval=FALSE}
+dfFin = tickers %>% filter(Sector=="Finance")
+
+#Convert all values into millions
+idx = grep("B",dfFin$MarketCap)
+x = dfFin$MarketCap; dfFin$MarketCap = as.numeric(substr(x,2,nchar(x)-1))
+dfFin$MarketCap[idx] = dfFin$MarketCap[idx]*1000 #For the billion cases
+
+#Print top 50
+res = dfFin %>% arrange(desc(MarketCap))
+print(res[1:50,c(1,2,4)])
+```
+
+## Using the *Data Table* package
+
+1. Install the *DT* package.
+2. Show the top 50 financial firms using this package.
+
+```{r,echo=FALSE,eval=FALSE}
+library(DT)
+datatable(res)
+```
+
+## Show the same using *Shiny* for finance firms
+
+1. Redisplay the data set for finance firms using shiny.
+2. Add to the shiny app a feature that lets you select which columns of the data set to display. The resulting Shiny App should look as follows: 
+
+![](DataTableShiny.png)
+
+
+```{r,echo=FALSE,eval=FALSE}
+#GetData.R
+#Subset Finance sector
+nasdaq_names = stockSymbols(exchange = "NASDAQ")
+nyse_names = stockSymbols(exchange = "NYSE")
+amex_names = stockSymbols(exchange = "AMEX")
+df = rbind(nasdaq_names,nyse_names,amex_names)
+
+#Convert all values into millions
+idx = grep("B",df$MarketCap)
+x = df$MarketCap; df$MarketCap = as.numeric(substr(x,2,nchar(x)-1))
+df$MarketCap[idx] = df$MarketCap[idx]*1000 #For the billion cases
+idx = which(df$MarketCap>0)
+df = df[idx,]
+Finance = df %>% filter(Sector=="Finance")
+```
+
+
+```{r,echo=FALSE,eval=FALSE}
+#server.R
+library(shiny)
+library(ggplot2)
+library(quantmod)
+library(DT)
+library(dplyr)
+library(magrittr)
+
+function(input, output, session) {
+  
+  #Subset Finance sector
+  nasdaq_names = stockSymbols(exchange = "NASDAQ")
+  nyse_names = stockSymbols(exchange = "NYSE")
+  amex_names = stockSymbols(exchange = "AMEX")
+  df = rbind(nasdaq_names,nyse_names,amex_names)
+  
+  #Convert all values into millions
+  idx = grep("B",df$MarketCap)
+  x = df$MarketCap; df$MarketCap = as.numeric(substr(x,2,nchar(x)-1))
+  df$MarketCap[idx] = df$MarketCap[idx]*1000 #For the billion cases
+  idx = which(df$MarketCap>0)
+  df = df[idx,]
+  Finance = df %>% filter(Sector=="Finance")
+  
+  output$mytable1 <- DT::renderDataTable({
+    DT::datatable(Finance[, input$show_vars, drop = FALSE])
+  })
+  
+}
+```
+
+```{r,echo=FALSE,eval=FALSE}
+#ui.R
+library(shiny)
+library(ggplot2)
+library(quantmod)
+library(DT)
+library(dplyr)
+library(magrittr)
+
+fluidPage(
+  title = 'Financial Firms Data',
+  sidebarLayout(
+    sidebarPanel(
+      conditionalPanel(
+        'input.dataset === "Finance"',
+        checkboxGroupInput('show_vars', 'Choose data elements:',
+                           names(Finance), selected = names(Finance))
+      )
+    ),
+    mainPanel(
+      tabsetPanel(
+        id = 'dataset',
+        tabPanel('Finance', DT::dataTableOutput('mytable1'))
+      )
+    )
+  )
+)
+```
+
+

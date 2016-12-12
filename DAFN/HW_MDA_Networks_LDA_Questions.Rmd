@@ -1,0 +1,53 @@
+---
+title: "HW_TextMining_Networks"
+author: "Prof Sanjiv Das"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+### Question 1 
+
+Using the package **rvest** one can download web pages. Extract text from them and pull the MD&A, which is the description of the Management Discussion and Analysis inside the 10-K filing. Do this for any one stock ticker you may be interested in. You may find the 10-K filings at the EDGAR web site provided by the SEC. In the MD&A just grab only the overview paragraphs preceding the Sales Data. Print out a clean paragraph, i.e., write code to clean up the strange characters in the text. (Note: some functions you may use from the rvest package among others, are **read_html** and **html_text**.) Add text around your answers to explain what you did. Also explain what exactly this output is, and why it might be useful to extract text like this. 
+
+
+
+### Question 2
+
+How many sentences do you have in the extracted text? Summarize the extracted text into 1/10 of its current length in terms of representative sentences. Use Jaccard similarity as the metric of closeness for the sentences you have. 
+ 
+
+### Question 3
+
+Convert the sentences you created into a Corpus using the **tm** package. Each sentence will be a separate document in this corpus. Next, convert the corpus into a term-document matrix (TDM). From this prepare a wordcloud summarizing the corpus. 
+
+
+
+### Question 4
+
+Using the TDM, find the matrix of cosine distances between all sentences. Then generate a new summary using cosine distances instead of Jaccard similarity as done previously. Compare the two results and comment. 
+
+ 
+
+### Question 5
+
+Mood score the MD&A from the stock you chose and see if it positive or negative. 
+
+
+
+### Question 6
+
+Get the article at: 
+
+http://www.politico.com/magazine/story/2016/01/obama-biggest-achievements-213487?paginate=false
+
+1. Clean up this article, and reduce it to sentences.
+2. Then compute the Jaccard similarity across sentences, pairwise. Find the median Jaccard similarity score. 
+3. Then, treating each sentence as a node in a network, create the adjacency matrix of nodes (sentences) in the network, such that two nodes are connected if the Jaccard score is greater than the 95th percentile, else the nodes are not connected. PLot the network. 
+4. Rank the sentences by their respective centrality scores. Create a summary of the top 1/10 of sentences by centrality score. 
+
+
+### Question 7
+
+Topic Analysis: Use any ideas you may have to glean "context" from it, or do an analysis of the article, such as summarize topics that it may be covering. (For example, look up topic analysis.) Generate 5 topics and see if you can interpret what they are.
+
