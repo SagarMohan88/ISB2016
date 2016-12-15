@@ -1,0 +1,639 @@
+---
+title: "Digital Portfolios"
+date: "`r Sys.Date()`"
+author: Sanjiv Ranjan Das
+output: slidy_presentation
+---
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+PL <- c("knitr", "rmdformats", "pspline")
+new.packages <- PL[!(PL %in% installed.packages())]
+if(length(new.packages)) install.packages(new.packages)
+
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+
+# Digital Assets
+
+Digital assets are investments with returns that are binary in nature, i.e., they either have a very large or very small payoff. We explore the features of optimal portfolios of digital assets such as venture investments, credit assets, search keyword groups, and lotteries. These portfolios comprise correlated assets with joint Bernoulli distributions. Using a simple, standard, fast recursion technique to generate the return distribution of the portfolio, we derive guidelines on how investors in digital assets may think about constructing their portfolios. We find that digital portfolios are better when they are homogeneous in the size of the assets, but heterogeneous in the success probabilities of the asset components. 
+
+The return distributions of digital portfolios are highly skewed and fat-tailed. A good example of such a portfolio is a venture fund. A simple representation of the payoff to a digital investment is Bernoulli with a large payoff for a successful outcome and a very small (almost zero) payoff for a failed one. The probability of success of digital investments is typically small, in the region of 5--25% for new ventures (see Das, Jagannathan, Sarin (2003)). Optimizing portfolios of such investments is therefore not amenable to standard techniques used for mean-variance optimization.
+
+It is also not apparent that the intuitions obtained from the mean-variance setting carry over to portfolios of Bernoulli assets. For instance, it is interesting to ask, ceteris paribus, whether diversification by increasing the number of assets in the digital portfolio is always a good thing. Since Bernoulli portfolios involve higher moments, how diversification is achieved is by no means obvious. We may also ask whether it is preferable to include assets with as little correlation as possible or is there a sweet spot for the optimal correlation levels of the assets? Should all the investments be of even size, or is it preferable to take a few large bets and several small ones? And finally, is a mixed portfolio of safe and risky assets preferred to one where the probability of success is more uniform across assets? These are all questions that are of interest to investors in digital type portfolios, such as CDO investors, venture capitalists and investors in venture funds. 
+
+We will use a method that is based on standard recursion for modeling of the exact return distribution of a Bernoulli portfolio. This method on which we build was first developed by Andersen, Sidenius, and Basu (2003) for generating loss distributions of credit portfolios. We then examine the properties of these portfolios in a stochastic dominance framework framework to provide guidelines to digital investors. These guidelines are found to be consistent with prescriptions from expected utility optimization. The prescriptions are as follows:
+
+1. Holding all else the same, more digital investments are preferred, meaning for example, that a venture  portfolio should seek to maximize market share. 
+2. As with mean-variance portfolios, lower asset correlation is better, unless the digital investor's payoff depends on the upper tail of returns. 
+3. A strategy of a few large bets and many small ones is inferior to one with bets being roughly the same size. 
+4. And finally, a mixed portfolio of low-success and high-success assets is better than one with all assets of the same average success probability level. 
+
+**References**
+
+- Andersen, Leif., Jakob Sidenius, and Susanta Basu (2003). All your hedges in one basket, *Risk*, November, 67-72.
+- Das, Sanjiv., Murali Jagannathan, and Atulya Sarin (2003). Private Equity Returns: An Empirical Examination of the Exit of asset-Backed Companies, *Journal of Investment Management* 1(1), 152-177.
+
+# Modeling Digital Portfolios
+
+Assume that the investor has a choice of $n$ investments in digital assets (e.g., start-up firms). The investments are indexed $i=1,2, \ldots, n$. Each investment has a probability of success that is denoted $q_i$, and if successful, the payoff returned is $S_i$ dollars. With probability $(1-q_i)$, the investment will not work out, the start-up will fail, and the money will be lost in totality. Therefore, the payoff (cashflow) is
+
+\begin{equation}
+\mbox{Payoff} = C_i = \left\{ \begin{array}{cl}
+S_i & \mbox{with prob } q_i \\
+0 & \mbox{with prob } (1-q_i) 
+\end{array}  \right.
+\end{equation}
+
+The specification of the investment as a Bernoulli trial is a simple representation of reality in the case of digital portfolios. This mimics well for example, the case of the venture capital business. Two generalizations might be envisaged. First, we might extend the model to allowing $S_i$ to be random, i.e., drawn from a range of values. This will complicate the mathematics, but not add much in terms of enriching the model's results. Second, the failure payoff might be non-zero, say an amount $a_i$. Then we have a pair of Bernoulli payoffs $\{S_i, a_i\}$. Note that we can decompose these investment payoffs into a project with constant payoff $a_i$ plus another project with payoffs $\{S_i-a_i,0\}$, the latter being exactly the original setting where the failure payoff is zero. Hence, the version of the model we solve in this note, with zero failure payoffs, is without loss of generality. 
+
+Unlike stock portfolios where the choice set of assets is assumed to be multivariate normal, digital asset investments have a joint Bernoulli distribution. Portfolio returns of these investments are unlikely to be Gaussian, and hence higher-order moments are likely to matter more. In order to generate the return distribution for the portfolio of digital assets, we need to account for the correlations across digital investments. We adopt the following simple model of correlation. Define $y_i$ to be the performance proxy for the $i$-th asset. This proxy variable will be simulated for comparison with a threshold level of performance to determine whether the asset yielded a success or failure. It is defined by the following function, widely used in the correlated default modeling literature, see for example Andersen, Sidenius, Basu (2003):
+
+\begin{equation}
+y_i = \rho_i \; X + \sqrt{1-\rho_i^2}\; Z_i, \quad  i = 1 \ldots n
+\end{equation}
+
+where $\rho_i \in [0,1]$ is a coefficient that correlates threshold $y_i$ with a normalized common factor $X \sim N(0,1)$. The common factor drives the correlations amongst the digital assets in the portfolio. We assume that $Z_i \sim N(0,1)$ and $\mbox{Corr}(X,Z_i)=0, \forall i$. Hence, the correlation between assets $i$ and $j$ is given by $\rho_i \times \rho_j$. Note that the mean and variance of $y_i$ are: $E(y_i)=0, Var(y_i)=1, \forall i$. Conditional on $X$, the values of $y_i$ are all independent, as $\mbox{Corr}(Z_i, Z_j)=0$. 
+
+We now formalize the probability model governing the success or failure of the digital investment. We define a variable $x_i$, with distribution function $F(\cdot)$, such that $F(x_i) = q_i$, the probability of success of the digital investment. Conditional on a fixed value of $X$, the probability of success of the $i$-th investment is defined as 
+
+\begin{equation}
+p_i^X \equiv Pr[y_i < x_i | X]
+\end{equation}
+
+Assuming $F$ to be the normal distribution function, we have
+
+\begin{eqnarray}
+p_i^X &=& Pr \left[ \rho_i X + \sqrt{1-\rho_i^2}\; Z_i < x_i | X \right] \nonumber \\
+&=& Pr \left[ Z_i < \frac{x_i - \rho_i X}{\sqrt{1-\rho_i^2}} | X  \right] \nonumber \\
+&=& \Phi \left[  \frac{F^{-1}(q_i) - \rho_i  X}{\sqrt{1-\rho_i}} \right]
+\end{eqnarray}
+
+where $\Phi(.)$ is the cumulative normal density function. Therefore, given the level of the common factor $X$, asset correlation $\rho$, and the unconditional success probabilities $q_i$, we obtain the conditional success probability for each asset $p_i^X$. As $X$ varies, so does $p_i^X$. For the numerical examples here we choose the function $F(x_i)$ to the cumulative normal probability function. 
+
+# Fast Computation Approach
+
+We use a fast technique for building up distributions for sums of Bernoulli random variables. In finance, this {\em recursion} technique was introduced in the credit portfolio modeling literature by Andersen, Sidenius, Basu (2003). 
+
+We deem an investment in a digital asset as successful if it achieves its high payoff $S_i$. The cashflow from the portfolio is a random variable $C = \sum_{i=1}^n C_i$. The maximum cashflow that may be generated by the portfolio will be the sum of all digital asset cashflows, because each and every outcome was a success, i.e., 
+
+\begin{equation}
+C_{max} = \sum_{i=1}^n \; S_i
+\end{equation}
+
+To keep matters simple, we assume that each $S_i$ is an integer, and that we round off the amounts to the nearest significant digit. So, if the smallest unit we care about is a million dollars, then each $S_i$ will be in units of integer millions. 
+
+Recall that, conditional on a value of $X$, the probability of success of digital asset $i$ is given as $p_i^X$. The recursion technique will allow us to generate the portfolio cashflow probability distribution for each level of $X$. We will then simply compose these conditional (on $X$) distributions using the marginal distribution for $X$, denoted $g(X)$, into the unconditional distribution for the entire portfolio. Therefore, we define the probability of total cashflow from the portfolio, conditional on $X$, to be $f(C | X)$. Then, the unconditional cashflow distribution of the portfolio becomes
+
+\begin{equation}
+f(C) = \int_X \; f(C | X) \cdot g(X)\; dX  \quad \quad \quad  (CONV) 
+\end{equation}
+
+The distribution $f(C | X)$ is easily computed numerically as follows. 
+
+We index the assets with $i=1 \ldots n$. The cashflow from all assets taken together will range from zero to $C_{max}$. Suppose this range is broken into integer buckets, resulting in $N_B$ buckets in total, each one containing an increasing level of total cashflow. We index these buckets by $j=1 \ldots N_B$, with the cashflow in each bucket equal to $B_j$. $B_j$ represents the total cashflow from all assets (some pay off and some do not), and the buckets comprise the discrete support for the entire distribution of total cashflow from the portfolio. For example, suppose we had 10 assets, each with a payoff of $C_i=3$. Then $C_{max}=30$. A plausible set of buckets comprising the support of the cashflow distribution would be: $\{0,3,6,9,12,15,18,21,24,27,C_{max}\}$. 
+
+Define $P(k,B_j)$ as the probability of bucket $j$'s cashflow level $B_j$ if we account for the first $k$ assets. For example, if we had just 3 assets, with payoffs of value 1,3,2 respectively, then we would have 7 buckets, i.e. $B_j=\{0,1,2,3,4,5,6\}$. After accounting for the first asset, the only possible buckets with positive probability would be $B_j=0,1$, and after the first two assets, the buckets with positive probability would be $B_j=0,1,3,4$. We begin with the first asset, then the second and so on, and compute the probability of seeing the returns in each bucket. Each probability is given by the following {\em recursion}:
+
+\begin{equation}
+P(k+1,B_j) = P(k,B_j)\;[1-p^X_{k+1}] + P(k,B_j - S_{k+1}) \; p^X_{k+1}, \quad k = 1, \ldots, n-1. \quad \quad (REC) 
+\end{equation}
+
+Thus the probability of a total cashflow of $B_j$ after considering the first $(k+1)$ firms is equal to the sum of two probability terms. First, the probability of the same cashflow $B_j$ from the first $k$ firms, given that firm $(k+1)$ did not succeed. Second, the probability of a cashflow of $B_j - S_{k+1}$ from the first $k$ firms and the $(k+1)$-st firm does succeed. 
+
+We start off this recursion from the first asset, after which the $N_B$ buckets are all of probability zero, except for the bucket with zero cashflow (the first bucket) and the one with $S_1$ cashflow, i.e., 
+
+\begin{eqnarray}
+P(1,0) &=& 1-p^X_1 \\
+P(1,S_1) &=& p^X_1 
+%P(1,k) &=& 0, \quad k \neq \{0,S_1\}
+\end{eqnarray}
+
+All the other buckets will have probability zero, i.e., $P(1,B_j \neq \{0,S_1\})=0$. With these starting values, we can run the system up from the first asset to the $n$-th one by repeated application of equation (**REC**). Finally, we will have the entire distribution $P(n,B_j)$, conditional on a given value of $X$. We then compose all these distributions that are conditional on $X$ into one single cashflow distribution using equation (**CONV**). This is done by numerically integrating over all values of $X$. 
+
+```{r}
+
+#Library for Digital Portfolio Analysis
+#Copyright, Sanjiv Das, Dec 1, 2008.
+
+#------------------------------------------------------------
+#Function to implement the Andersen-Sidenius-Basu (Risk, 2003) 
+#recursion algorithm. Note that the probabilities are fixed, 
+#i.e. conditional on a given level of factor. The full blown 
+#distribution comes from the integral over all levels of the factor.
+#INPUTS (example)
+#w = c(1,7,3,2)  			#Loss weights
+#p = c(0.05, 0.2, 0.03, 0.1)	#Loss probabilities
+
+asbrec = function(w,p) {
+
+#BASIC SET UP
+N = length(w)
+maxloss = sum(w)
+bucket = c(0,seq(maxloss))
+LP = matrix(0,N,maxloss+1)  	#probability grid over losses
+
+#DO FIRST FIRM
+LP[1,1] = 1-p[1];
+LP[1,w[1]+1] = p[1];
+
+#LOOP OVER REMAINING FIRMS
+for (i in seq(2,N)) {
+	for (j in seq(maxloss+1)) {
+		LP[i,j] = LP[i-1,j]*(1-p[i])
+		if (bucket[j]-w[i] >= 0) {
+			LP[i,j] = LP[i,j] + LP[i-1,j-w[i]]*p[i]
+		}
+	}
+}
+
+#FINISH UP
+lossprobs = LP[N,]
+#print(t(LP))
+#print(c("Sum of final probs = ",sum(lossprobs)))
+result = matrix(c(bucket,lossprobs),(maxloss+1),2)
+} #END ASBREC
+```
+
+```{r}
+
+#EXAMPLE
+w = c(1,7,3,2)
+p = c(0.05, 0.2, 0.03, 0.1)
+res = asbrec(w,p)
+print(res)
+barplot(res[,2],names.arg=res[,1],col=2)
+```
+
+```{r}
+
+#EXAMPLE
+w = c(5,8,4,2,1)
+p = array(1/length(w),length(w))
+res = asbrec(w,p)
+print(res)
+barplot(res[,2],names.arg=res[,1],col=2)
+```
+
+We can explore these recursion calculations in some detail as follows. Note that in our example $p_i = 0.2, i = 1,2,3,4,5$. We are interested in computing $P(k,B)$, where $k$ denotes the $k$-th recursion pass, and $B$ denotes the return bucket. Recall that we have five assets with return levels of $\{5,8,4,2,1\}$, respecitvely. After $i=1$, we have
+
+\begin{eqnarray*}
+P(1,0) &=& (1-p_1) = 0.8\\
+P(1,5) &=& p_1 = 0.2\\
+P(1,j) &=& 0,  j \neq \{0,5\} 
+\end{eqnarray*}
+
+The completes the first recursion pass and the values can be verified from the R output above by examining column 2 (column 1 contains the values of the return buckets). We now move on the calculations needed for the second pass in the recursion. 
+
+\begin{eqnarray*}
+P(2,0) &=& P(1,0)(1-p_2) = 0.64\\
+P(2,5) &=& P(1,5)(1-p_2) + P(1,5-8) p_2 = 0.2 (0.8) + 0 (0.2) = 0.16\\
+P(2,8) &=& P(1,8) (1-p_2) + P(1,8-8) p_2 = 0 (0.8) + 0.8 (0.2) = 0.16\\
+P(2,13) &=& P(1,13)(1-p_2) + P(1,13-8) p_2 = 0 (0.8) + 0.2 (0.2) = 0.04\\
+P(2,j) &=& 0, j \neq \{0,5,8,13\}
+\end{eqnarray*}
+
+The third recursion pass is as follows:
+
+\begin{eqnarray*}
+P(3,0) &=& P(2,0)(1-p_3) = 0.512\\
+P(3,4) &=& P(2,4)(1-p_3) + P(2,4-4) = 0(0.8) + 0.64(0.2) = 0.128\\
+P(3,5) &=& P(2,5)(1-p_3) + P(2,5-4) p_3 = 0.16 (0.8) + 0 (0.2) = 0.128\\
+P(3,8) &=& P(2,8) (1-p_3) + P(2,8-4) p_3 = 0.16 (0.8) + 0 (0.2) = 0.128\\
+P(3,9) &=& P(2,9) (1-p_3) + P(2,9-4) p_3 = 0 (0.8) + 0.16 (0.2) = 0.032\\
+P(3,12) &=& P(2,12) (1-p_3) + P(2,12-4) p_3 = 0 (0.8) + 0.16 (0.2) = 0.032\\
+P(3,13) &=& P(2,13) (1-p_3) + P(2,13-4) p_3 = 0.04 (0.8) + 0 (0.2) = 0.032\\
+P(3,17) &=& P(2,17) (1-p_3) + P(2,17-4) p_3 = 0 (0.8) + 0.04 (0.2) = 0.008\\
+P(3,j) &=& 0, j \neq \{0,4,5,8,9,12,13,17\}
+\end{eqnarray*}
+
+Note that the same computation work even when the outcomes are not of equal probability. 
+
+```{r}
+
+#ONE FINAL EXAMPLE
+#----------MAIN CALLING SEGMENT------------------
+w = c(5,2,4,2,8,1,9)
+p = array(0.2,length(w))
+res = asbrec(w,p)
+print(res)
+print(sum(res[,2]))
+barplot(res[,2],names.arg=res[,1],col=4)
+```
+
+# Combining conditional distributions
+
+We now demonstrate how we will integrate the conditional probability distributions $p^X$ into an unconditional probability distribution of outcomes, denoted 
+
+\begin{equation}
+p = \int_X p^X g(X) \; dX, 
+\end{equation}
+
+where $g(X)$ is the density function of the state variable $X$. We create a function to combine the conditional distribution functions. This function calls the **asbrec** function that we had used earlier. 
+
+```{r}
+
+#---------------------------
+#FUNCTION TO COMPUTE FULL RETURN DISTRIBUTION
+#INTEGRATES OVER X BY CALLING ASBREC.R
+digiprob = function(L,q,rho) {  #Note: L,q same as w,p from before
+	dx = 0.1
+	x = seq(-40,40)*dx
+	fx = dnorm(x)*dx
+	fx = fx/sum(fx)
+	maxloss = sum(L)
+	bucket = c(0,seq(maxloss))
+	totp = array(0,(maxloss+1))
+	for (i in seq(length(x))) {
+		p = pnorm((qnorm(q)-rho*x[i])/sqrt(1-rho^2))
+		ldist = asbrec(L,p)
+		totp = totp + ldist[,2]*fx[i]
+	}	
+	result = matrix(c(bucket,totp),(maxloss+1),2)
+}
+```
+
+Note that now we will use the unconditional probabilities of success for each asset, and correlate them with a specified correlation level. We run this with two correlation levels $\{-0.5, +0.5\}$. 
+
+```{r}
+
+#------INTEGRATE OVER CONDITIONAL DISTRIBUTIONS----
+w = c(5,8,4,2,1)
+q = c(0.1,0.2,0.1,0.05,0.15)
+rho = 0.25
+res1 = digiprob(w,q,rho)
+rho = 0.75
+res2 = digiprob(w,q,rho)
+par(mfrow=c(2,1))
+barplot(res1[,2],names.arg=res1[,1],xlab="portfolio value",
+    ylab="probability",main="rho = 0.25")
+barplot(res2[,2],names.arg=res2[,1],xlab="portfolio value",
+    ylab="probability",main="rho = 0.75")
+
+cbind(res1,res2)
+```
+
+The left column of probabilities has correlation of $\rho=0.25$ and the right one is the case when $\rho=0.75$. We see that the probabilities on the right are lower for low outcomes (except zero) and high for high outcomes. Why? 
+
+# Stochastic Dominance (SD)
+
+SD is an ordering over probabilistic bundles. We may want to know if one VC's portfolio dominates another in a risk-adjusted sense. Different SD concepts apply to answer this question. For example if portfolio $A$ does better than portfolio $B$ in every state of the world, it clearly dominates. This is called **state-by-state** dominance, and is hardly ever encountered. Hence, we briefly examine two more common types of SD.
+
+1. First-order Stochastic Dominance (FSD): For cumulative distribution function $F(X)$ over states $X$, portfolio $A$ dominates $B$ if $\mbox{Prob}(A \geq k) \geq  \mbox{Prob}(B \geq k)$ for all states $k \in X$, and $\mbox{Prob}(A \geq k) >  \mbox{Prob}(B \geq k)$ for some $k$. It is the same as $\mbox{Prob}(A \leq k) \leq  \mbox{Prob}(B \leq k)$ for all states $k \in X$, and $\mbox{Prob}(A \leq k) <  \mbox{Prob}(B \leq k)$ for some $k$.This implies that $F_A(k) \leq F_B(k)$. The mean outcome under $A$ will be higher than under $B$, and all increasing utility functions will give higher utility for $A$. This is a weaker notion of dominance than state-wise, but also not as often encountered in practice. 
+2. Second-order Stochastic Dominance (SSD): Here the portfolios have the same mean but the risk is less for portfolio $A$. Then we say that portfolio $A$ has a **mean-preserving spread** over portfolio $B$. Technically this is the same as $\int_{-\infty}^k [F_A(k) - F_B(k)] \; dX < 0$, and $\int_X X dF_A(X) = \int_X X dF_B(X)$. Mean-variance models in which portfolios on the efficient frontier dominate those below are a special case of SSD. See the example below, there is no FSD, but there is SSD. 
+
+```{r}
+
+#FIRST_ORDER SD
+x = seq(-4,4,0.1)
+F_B = pnorm(x,mean=0,sd=1);
+F_A = pnorm(x,mean=0.25,sd=1);
+F_A-F_B   #FSD exists
+```
+
+```{r}
+
+#SECOND_ORDER SD
+x = seq(-4,4,0.1)
+F_B = pnorm(x,mean=0,sd=2);
+F_A = pnorm(x,mean=0,sd=1);
+print(F_A-F_B)    #No FSD
+
+cumsum(F_A-F_B)
+```
+
+# Portfolio Characteristics
+
+Armed with this established machinery, there are several questions an investor (e.g. a VC) in a digital portfolio may pose. First, is there an optimal number of assets, i.e., ceteris paribus, are more assets better than fewer assets, assuming no span of control issues? Second, are Bernoulli portfolios different from mean-variances ones, in that is it always better to have less asset correlation than more correlation? Third, is it better to have an even weighting of investment across the assets or might it be better to take a few large bets amongst many smaller ones? Fourth, is a high dispersion of probability of success better than a low dispersion? These questions are very different from the ones facing investors in traditional mean-variance portfolios. We shall examine each of these questions in turn. 
+
+## How many assets?
+
+With mean-variance portfolios, keeping the mean return of the portfolio fixed, more securities in the portfolio is better, because diversification reduces the variance of the portfolio. Also, with mean-variance portfolios, higher-order moments do not matter. But with portfolios of Bernoulli assets, increasing the number of assets might exacerbate higher-order moments, even though it will reduce variance. Therefore it may not be worthwhile to increase the number of assets ($n$) beyond a point. 
+
+In order to assess this issue we conducted the following experiment. We invested in $n$ assets each with payoff of $1/n$. Hence, if all assets succeed, the total (normalized) payoff is 1. This normalization is only to make the results comparable across different $n$, and is without loss of generality. We also assumed that the correlation parameter is $\rho_i = 0.25$, for all $i$. To make it easy to interpret the results, we assumed each asset to be identical with a success probability of $q_i=0.05$ for all $i$. Using the recursion technique, we computed the probability distribution of the portfolio payoff for four values of $n = \{25,50,75,100\}$. The distribution function is plotted below. There are 4 plots, one for each $n$, and if we look at the bottom left of the plot, the leftmost line is for $n=100$. The next line to the right is for $n=75$, and so on. 
+
+One approach to determining if greater $n$ is better for a digital portfolio is to investigate if a portfolio of $n$ assets stochastically dominates one with less than $n$ assets. On examination of the shapes of the distribution functions for different $n$, we see that it is likely that as $n$ increases, we obtain portfolios that exhibit second-order stochastic dominance (SSD) over portfolios with smaller $n$. The return distribution when $n=100$ (denoted $G_{100}$) would dominate that for $n=25$ (denoted $G_{25}$) in the SSD sense, if $\int_x x \; dG_{100}(x) = \int_x x \; dG_{25}(x)$, and $\int_0^u [G_{100}(x) -  G_{25}(x)]\; dx \leq 0$ for all $u \in (0,1)$. That is, $G_{25}$ has a mean-preserving spread over $G_{100}$, or $G_{100}$ has the same mean as $G_{25}$ but lower variance, i.e., implies superior mean-variance efficiency. To show this we plotted the integral $\int_0^u [G_{100}(x) - G_{25}(x)] \; dx$ and checked the SSD condition. We found that this condition is satisfied (see Figure \ref{F_n}). As is known, SSD implies mean-variance efficiency as well. 
+
+We also examine if higher $n$ portfolios are better for a power utility investor with utility function, $U(C) = \frac{(0.1 + C)^{1-\gamma}}{1-\gamma}$, where $C$ is the normalized total payoff of the Bernoulli portfolio. Expected utility is given by $\sum_C U(C)\; f(C)$. We set the risk aversion coefficient to $\gamma=3$ which is in the standard range in the asset-pricing literature. The cpde below reports the results. We can see that the expected utility increases monotonically with $n$. Hence, for a power utility investor, having more assets is better than less, keeping the mean return of the portfolio constant. Economically, in the specific case of VCs, this highlights the goal of trying to capture a larger share of the number of available ventures. The results from the SSD analysis are consistent with those of expected power utility.
+
+```{r}
+
+#CHECK WHAT HAPPENS WHEN NUMBER OF ASSETS/ISSUERS INCREASES
+#Result: No ordering with SSD, utility better with more names
+#source("number_names.R")
+#SECOND-ORDER STOCH DOMINANCE (SSD): GREATER num_names IS BETTER
+num_names = c(25,50,75,100)
+each_loss = 1
+each_prob = 0.05
+rho = 0.5^2
+gam = 3
+
+for (j in seq(4)) {
+	L = array(each_loss,num_names[j])
+	q = array(each_prob,num_names[j])
+	res = digiprob(L,q,rho)
+	rets = res[,1]/num_names[j]
+	probs = res[,2]
+	cumprobs = array(0,length(res[,2]))
+	cumprobs[1] = probs[1]
+	for (k in seq(2,length(res[,2]))) {
+		cumprobs[k] = cumprobs[k-1] + probs[k]
+	}
+	if (j==1) { 
+		plot(rets,cumprobs,type="l",xlab="Normalized Total Payoff",ylab="Cumulative Probability") 
+		rets1 = rets
+		cumprobs1 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==2) { 
+		lines(rets,cumprobs,type="l",col="Red") 
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==3) { 
+		lines(rets,cumprobs,type="l",col="Green") 
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==4) { 
+		lines(rets,cumprobs,type="l",col="Blue") 
+		rets4 = rets
+		cumprobs4 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	mn = sum(rets*probs)
+	idx = which(rets>0.03); p03 = sum(probs[idx])
+	idx = which(rets>0.07); p07 = sum(probs[idx])
+	idx = which(rets>0.10); p10 = sum(probs[idx])
+	idx = which(rets>0.15); p15 = sum(probs[idx])
+	print(c(mn,p03,p07,p10,p15))
+	print(c("Utility = ",utility))
+}
+```
+
+```{r}
+
+#PLOT DIFFERENCE IN DISTRIBUTION FUNCTIONS 
+#IF POSITIVE FLAT WEIGHTS BETTER THAN RISING WEIGHTS
+library(pspline)
+fit = sm.spline(rets1,cumprobs1)
+cumprobs1 = predict(fit,rets4)
+plot(rets4,cumprobs1-matrix(cumprobs4),type="l",xlab="Normalized total payoff",ylab="Difference in cumulative probs")
+
+#CHECK IF SSD IS SATISFIED
+#A SSD> B, if E(A)=E(B), and integral_0^y (F_A(z)-F_B(z)) dz <= 0, for all y
+cumprobs4 = matrix(cumprobs4,length(cumprobs4),1)
+n = length(cumprobs1)
+ssd = NULL
+for (j in 1:n) {
+	check = sum(cumprobs4[1:j]-cumprobs1[1:j])
+	ssd = c(ssd,check)	
+}
+print(c("Max ssd = ",max(ssd)))  #If <0, then SSD satisfied, and it implies MV efficiency.
+plot(rets4,ssd,type="l",xlab="Normalized total payoff",ylab="Integrated F(G100) minus F(G25)")
+```
+
+## The impact of correlation
+
+As with mean-variance portfolios, we expect that increases in payoff correlation for Bernoulli assets will adversely impact portfolios. In order to verify this intuition we analyzed portfolios keeping all other variables the same, but changing correlation. In the previous subsection, we set the parameter for correlation to be $\rho = 0.25$. Here, we examine four levels of the correlation parameter: $\rho=\{0.09, 0.25, 0.49, 0.81\}$. For each level of correlation, we computed the normalized total payoff distribution. The number of assets is kept fixed at $n=25$ and the probability of success of each digital asset is $0.05$ as before.
+
+The results are shown in the Figures below where the probability distribution function of payoffs is shown for all four correlation levels. We find that the SSD condition is met, i.e., that lower correlation portfolios stochastically dominate (in the SSD sense) higher correlation portfolios.  We also examined changing correlation in the context of a power utility investor with the same utility function as in the previous subsection. See results from the code below. We confirm that, as with mean-variance portfolios, Bernoulli portfolios also improve if the assets have low correlation. Hence, digital investors should also optimally attempt to diversify their portfolios. Insurance companies are a good example---they diversify risk across geographical and other demographic divisions. 
+
+```{r}
+
+#CHECK WHAT HAPPENS WHEN RHO INCREASES
+#Result: No ordering with SSD, Lower rho is better in the utility metric 
+#source("change_rho.R")
+num_names = 25
+each_loss = 1
+each_prob = 0.05
+rho = c(0.3,0.5,0.7,0.9)^2
+gam = 3
+
+for (j in seq(4)) {
+	L = array(each_loss,num_names)
+	q = array(each_prob,num_names)
+	res = digiprob(L,q,rho[j])
+	rets = res[,1]/num_names
+	probs = res[,2]
+	cumprobs = array(0,length(res[,2]))
+	cumprobs[1] = probs[1]
+	for (k in seq(2,length(res[,2]))) {
+		cumprobs[k] = cumprobs[k-1] + probs[k]
+	}
+	if (j==1) { 
+		plot(rets,cumprobs,type="l",xlab="Normalized Total Payoff",ylab="Cumulative Probability") 
+		cumprobs1 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==2) { 
+		lines(rets,cumprobs,type="l",col="Red") 
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==3) { 
+		lines(rets,cumprobs,type="l",col="Green") 
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==4) { 
+		lines(rets,cumprobs,type="l",col="Blue") 
+		cumprobs2 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	mn = sum(rets*probs)
+	idx = which(rets>0.03); p03 = sum(probs[idx])
+	idx = which(rets>0.07); p07 = sum(probs[idx])
+	idx = which(rets>0.10); p10 = sum(probs[idx])
+	idx = which(rets>0.15); p15 = sum(probs[idx])
+	print(c(mn,p03,p07,p10,p15))
+	print(c("Utility = ",utility))
+}
+```
+
+## Uneven bets?
+
+Digital asset investors are often faced with the question of whether to bet even amounts across digital investments, or to invest with different weights. We explore this question by considering two types of Bernoulli portfolios. Both have $n=25$ assets within them, each with a success probability of $q_i=0.05$. The first has equal payoffs, i.e., $1/25$ each. The second portfolio has payoffs that monotonically increase, i.e., the payoffs are equal to $j/325, j=1,2,\ldots,25$. We note that the sum of the payoffs in both cases is 1. The code output shows the utility of the investor, where the utility function is the same as in the previous sections. We see that the utility for the balanced portfolio is higher than that for the imbalanced one. Also the balanced portfolio evidences SSD over the imbalanced portfolio. However, the return distribution has fatter tails when the portfolio investments are imbalanced. Hence, investors seeking to distinguish themselves by taking on greater risk in their early careers may be better off with imbalanced portfolios. 
+
+```{r}
+
+#PLOT DIFFERENCE IN DISTRIBUTION FUNCTIONS 
+#IF POSITIVE FLAT WEIGHTS BETTER THAN RISING WEIGHTS
+plot(rets,cumprobs1-cumprobs2,type="l",xlab="Normalized total payoff",ylab="Difference in cumulative probs")
+
+#CHECK IF SSD IS SATISFIED
+#A SSD> B, if E(A)=E(B), and integral_0^y (F_A(z)-F_B(z)) dz <= 0, for all y
+cumprobs2 = matrix(cumprobs2,length(cumprobs2),1)
+n = length(cumprobs1)
+ssd = NULL
+for (j in 1:n) {
+	check = sum(cumprobs1[1:j]-cumprobs2[1:j])
+	ssd = c(ssd,check)	
+}
+print(c("Max ssd = ",max(ssd)))  #If <0, then SSD satisfied, and it implies MV efficiency. 
+plot(rets,ssd,type="l",xlab="Normalized total payoff",ylab="Integrated F(G[rho=0.09]) minus F(G[rho=0.81])")
+```
+
+```{r}
+
+#CHECK WHAT HAPPENS WITH UNEVEN WEIGHTS
+#Result: No ordering with SSD, Utility lower if weights ascending.
+#source("uneven_weights.R")
+#Flat vs rising weights
+
+num_names = 25
+each_loss1 = array(13,num_names)
+each_loss2 = seq(num_names)
+each_prob = 0.05
+rho = 0.55
+gam = 3
+
+for (j in seq(2)) {
+	if (j==1) { L = each_loss1 }
+	if (j==2) { L = each_loss2 }
+	q = array(each_prob,num_names)
+	res = digiprob(L,q,rho)
+	rets = res[,1]/sum(each_loss1)
+	probs = res[,2]
+	cumprobs = array(0,length(res[,2]))
+	cumprobs[1] = probs[1]
+	for (k in seq(2,length(res[,2]))) {
+		cumprobs[k] = cumprobs[k-1] + probs[k]
+	}
+	if (j==1) { 
+		plot(rets,cumprobs,type="l",xlab="Normalized Total Payoff",ylab="Cumulative Probability") 
+		cumprobs1 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==2) { 
+		lines(rets,cumprobs,type="l",col="Red") 
+		cumprobs2 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	mn = sum(rets*probs)
+	idx = which(rets>0.01); p01 = sum(probs[idx])
+	idx = which(rets>0.02); p02 = sum(probs[idx])
+	idx = which(rets>0.03); p03 = sum(probs[idx])
+	idx = which(rets>0.07); p07 = sum(probs[idx])
+	idx = which(rets>0.10); p10 = sum(probs[idx])
+	idx = which(rets>0.15); p15 = sum(probs[idx])
+	idx = which(rets>0.25); p25 = sum(probs[idx])
+	print(c(mn,p01,p02,p03,p07,p10,p15,p25))
+	print(c("Utility = ",utility))
+}
+```
+
+```{r}
+
+#PLOT DIFFERENCE IN DISTRIBUTION FUNCTIONS 
+#IF POSITIVE FLAT WEIGHTS BETTER THAN RISING WEIGHTS
+quartz()
+plot(rets,cumprobs1-cumprobs2,type="l",xlab="Normalized total payoff",ylab="Difference in cumulative probs")
+
+#CHECK IF SSD IS SATISFIED
+#A SSD> B, if E(A)=E(B), and integral_0^y (F_A(z)-F_B(z)) dz <= 0, for all y
+cumprobs2 = matrix(cumprobs2,length(cumprobs2),1)
+n = length(cumprobs1)
+ssd = NULL
+for (j in 1:n) {
+	check = sum(cumprobs1[1:j]-cumprobs2[1:j])
+	ssd = c(ssd,check)	
+}
+print(c("Max ssd = ",max(ssd)))  #If <0, then SSD satisfied, and it implies MV efficiency. 
+```
+
+## Mixing safe and risky assets
+
+Is it better to have assets with a wide variation in probability of success or with similar probabilities? To examine this, we look at two portfolios of $n=26$ assets. In the first portfolio, all the assets have a probability of success equal to $q_i = 0.10$. In the second portfolio, half the firms have a success probability of $0.05$ and the other half have a probability of $0.15$. The payoff of all investments is $1/26$. The probability distribution of payoffs and the expected utility for the same power utility investor (with $\gamma=3$) are given in code output below. We see that mixing the portfolio between investments with high and low probability of success results in higher expected utility than keeping the investments similar. We also confirmed that such imbalanced success probability portfolios also evidence SSD over portfolios with similar investments in terms of success rates. This result does not have a natural analog in the mean-variance world with non-digital assets. For empirical evidence on the efficacy of various diversification approaches, see Lossen (2006). 
+
+**References**
+
+- Lossen, Ulrich (2006). The Performance of Private Equity Funds: Does Diversification Matter?, Discussion Papers 192, SFB/TR 15, University of Munich.
+
+```{r}
+
+#CHECK WHAT HAPPENS WITH MIXED PDs
+#Result: No SSD ordering, but Utility higher for mixed pds
+#source("mixed_pds.R")
+num_names = 26
+each_loss = array(1,num_names)
+each_prob1 = array(0.10,num_names)
+each_prob2 = c(array(0.05,num_names/2),array(0.15,num_names/2))
+rho = 0.55
+gam = 3 #Risk aversion CARA
+
+for (j in seq(2)) {
+	if (j==1) { q = each_prob1 }
+	if (j==2) { q = each_prob2 }
+	L = each_loss
+	res = digiprob(L,q,rho)
+	rets = res[,1]/sum(each_loss)
+	probs = res[,2]
+	cumprobs = array(0,length(res[,2]))
+	cumprobs[1] = probs[1]
+	for (k in seq(2,length(res[,2]))) {
+		cumprobs[k] = cumprobs[k-1] + probs[k]
+	}
+	if (j==1) { 
+		plot(rets,cumprobs,type="l",xlab="Normalized Total Payoff",ylab="Cumulative Probability") 
+		cumprobs1 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	if (j==2) { 
+		lines(rets,cumprobs,type="l",col="Red") 
+		cumprobs2 = cumprobs
+		utility = sum(((0.1+rets)^(1-gam)/(1-gam))*probs)
+	}
+	mn = sum(rets*probs)
+	idx = which(rets>0.01); p01 = sum(probs[idx])
+	idx = which(rets>0.02); p02 = sum(probs[idx])
+	idx = which(rets>0.03); p03 = sum(probs[idx])
+	idx = which(rets>0.07); p07 = sum(probs[idx])
+	idx = which(rets>0.10); p10 = sum(probs[idx])
+	idx = which(rets>0.15); p15 = sum(probs[idx])
+	idx = which(rets>0.25); p25 = sum(probs[idx])
+	print(c(mn,p01,p02,p03,p07,p10,p15,p25))
+	print(c("Utility = ",utility))
+}
+```
+
+```{r}
+
+#PLOT DIFFERENCE IN DISTRIBUTION FUNCTIONS 
+#IF POSITIVE EVERYWHERE MIXED PDs BETTER THAN FLAT PDs
+quartz()
+plot(rets,cumprobs1-cumprobs2,type="l",xlab="Normalized total payoff",ylab="Difference in cumulative probs")
+
+#CHECK IF SSD IS SATISFIED
+#A SSD> B, if E(A)=E(B), and integral_0^y (F_A(z)-F_B(z)) dz <= 0, for all y
+cumprobs2 = matrix(cumprobs2,length(cumprobs2),1)
+n = length(cumprobs1)
+ssd = NULL
+for (j in 1:n) {
+	check = sum(cumprobs2[1:j]-cumprobs1[1:j])
+	ssd = c(ssd,check)	
+}
+print(c("Max ssd = ",max(ssd)))  #If <0, then SSD satisfied, and it implies MV efficiency. 
+```
+
+# Conclusions
+
+Digital asset portfolios are different from mean-variance ones because the asset returns are Bernoulli with small success probabilities. We used a recursion technique borrowed from the credit portfolio literature to construct the payoff distributions for Bernoulli portfolios. We find that many intuitions for these portfolios are similar to those of mean-variance ones: diversification by adding assets is useful, low correlations amongst investments is good. However, we also find that uniform bet size is preferred to some small and some large bets. Rather than construct portfolios with assets having uniform success probabilities, it is preferable to have some assets with low success rates and others with high success probabilities, a feature that is noticed in the case of venture funds. These insights augment the standard understanding obtained from mean-variance portfolio optimization. 
+
+The approach taken here is simple to use. The only inputs needed are the expected payoffs of the assets $C_i$, success probabilities $q_i$, and the average correlation between assets, given by a parameter $\rho$.  Broad statistics on these inputs are available, say for venture investments, from papers such as Das, Jagannathan, Sarin (2003). Therefore, using data, it is easy to optimize the portfolio of a digital asset fund. The technical approach here is also easily extended to features including cost of effort by investors as the number of projects grows (Kanniainen and Keuschnigg, 2003), syndication, etc. The number of portfolios with digital assets appears to be increasing in the marketplace, and the results of this analysis provide important intuition for asset managers. 
+
+The approach in Section 2 is just one way in which to model joint success probabilities using a common factor. Undeniably, there are other ways too, such as modeling joint probabilities directly, making sure that they are consistent with each other, which itself may be mathematically tricky. It is indeed possible to envisage that, for some different system of joint success probabilities, the qualitative nature of the results may differ from the ones developed here. It is also possible that the system we adopt here with a single common factor $X$ may be extended to more than one common factor, an approach often taken in the default literature. 
+
+**References**
+
+- Kanniainen, Vesa., and Christian Keuschnigg (2003). The optimal portfolio of start-up firms in asset capital finance, *Journal of Corporate Finance* 9(5), 521-534.
+
